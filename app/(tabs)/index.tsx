@@ -3,8 +3,6 @@ import { Image, StyleSheet, Dimensions, TouchableOpacity, Text } from 'react-nat
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { HoverEffect } from 'react-native-gesture-handler';
-import { green } from 'react-native-reanimated/lib/typescript/reanimated2/Colors';
 
 const screenWidth = Dimensions.get('window').width;
 const imageAspectRatio = 290 / 178; 

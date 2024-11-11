@@ -1,10 +1,8 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Platform, TouchableOpacity, Text, Dimensions } from 'react-native';
+import { StyleSheet, Image, TouchableOpacity, Text, Dimensions } from 'react-native';
 
 import React, { useState } from 'react'; // Import useState hook
 
 import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
