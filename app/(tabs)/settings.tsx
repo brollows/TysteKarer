@@ -1,5 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Platform } from 'react-native';
+import { StyleSheet, Image, Platform, TouchableOpacity, Text, Dimensions } from 'react-native';
+
+import React, { useState } from 'react'; // Import useState hook
 
 import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
@@ -7,82 +9,61 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
+const screenWidth = Dimensions.get('window').width;
+const imageAspectRatio = 290 / 178; 
+
 export default function TabTwoScreen() {
+  const [brorenMinBoolean, setBrorenMinBoolean] = useState(false);
+  const [fuckYouBoolean, setFuckYouBoolean] = useState(false);
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}>
+      headerImage={<Image
+        source={require('@/assets/images/skibbedi_ole.png')}
+        style={styles.skibbediOle}
+      />}>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Innstillinger</ThemedText>
       </ThemedView>
-      <ThemedText>Her kommer alle instillinger til drikkespillet.</ThemedText>
-      <Collapsible title="File-based routing">
+      <ThemedText>Her kan du sette drikkenivået og skru av og på morsomme regler.</ThemedText>
+      <Collapsible title="BROREN MIN!">
         <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/settings.tsx</ThemedText>
+          Hvis{' '}
+          <ThemedText type="defaultSemiBold">BROREN MIN</ThemedText>{' '}
+          er aktivert, så vil regelmessig en felles skål være påbudt!
         </ThemedText>
+        <TouchableOpacity
+          onPress={() => setBrorenMinBoolean(!brorenMinBoolean)} 
+          style={[
+            styles.button,
+            brorenMinBoolean ? styles.buttonActive : styles.buttonInactive,
+          ]}
+        >
+          <Text style={styles.buttonText}>
+            {brorenMinBoolean ? "Aktivert" : "Ikke aktivert"}
+          </Text>
+        </TouchableOpacity>
+ 
+      </Collapsible>      
+
+      <Collapsible title="Fuck you regelen">
         <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
+          Hvis{' '}
+          <ThemedText type="defaultSemiBold">fuck you regelen</ThemedText>{' '}
+          er aktivert, så er det en sjangs at straffeslurkene dobbler seg!
         </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText> library
-          to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
+        <TouchableOpacity
+          onPress={() => setFuckYouBoolean(!fuckYouBoolean)}
+          style={[
+            styles.button,
+            fuckYouBoolean ? styles.buttonActive : styles.buttonInactive,
+          ]}
+        >
+          <Text style={styles.buttonText}>
+            {fuckYouBoolean ? "Aktivert" : "Ikke aktivert"}
+          </Text>
+        </TouchableOpacity>
+ 
       </Collapsible>
     </ParallaxScrollView>
   );
@@ -98,5 +79,29 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
     gap: 8,
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonActive: {
+    backgroundColor: 'green',
+  },
+  buttonInactive: {
+    backgroundColor: 'gray',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  skibbediOle: {
+    width: screenWidth, 
+    height: screenWidth / imageAspectRatio + 20,
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
   },
 });

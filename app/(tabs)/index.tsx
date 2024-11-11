@@ -1,8 +1,10 @@
-import { Image, StyleSheet, Platform, Dimensions } from 'react-native';
+import { Image, StyleSheet, Dimensions, TouchableOpacity, Text } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { HoverEffect } from 'react-native-gesture-handler';
+import { green } from 'react-native-reanimated/lib/typescript/reanimated2/Colors';
 
 const screenWidth = Dimensions.get('window').width;
 const imageAspectRatio = 290 / 178; 
@@ -21,32 +23,23 @@ export default function HomeScreen() {
         <ThemedText type="title">Tyste Karer!</ThemedText>
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
+        <ThemedText type="subtitle">Er gutta klare for å bli drita?</ThemedText>
         <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
+          Det er kun <ThemedText type="defaultSemiBold">EN</ThemedText> ting man trenger for dette spillet. 
+          {'\n'}
+          <ThemedText type="defaultSemiBold">DRIKKE!</ThemedText>{' '}
         </ThemedText>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Settings</ThemedText>
-        <ThemedText>
-          Tap the Settings tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
+      <TouchableOpacity
+          onPress={() => ""} 
+          style={[
+            styles.button
+          ]}
+        >
+          <Text style={styles.buttonText}>
+            {"Start spillet"}
+          </Text>
+        </TouchableOpacity>
     </ParallaxScrollView>
   );
 }
@@ -68,4 +61,16 @@ const styles = StyleSheet.create({
     left: 0,
     position: 'absolute',
   },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+    backgroundColor: 'green',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  }
 });
