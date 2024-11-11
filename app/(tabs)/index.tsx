@@ -1,44 +1,51 @@
-import { Image, StyleSheet, Dimensions, TouchableOpacity, Text } from 'react-native';
-
+// HomeScreen.tsx
+import React from 'react';
+import { StyleSheet, Dimensions, TouchableOpacity, Text, Image, FlatList } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import AddPlayerInput from '../../components/AddPlayerInput'; // Corrected import path
+import { PlayersProvider, usePlayers } from '../../components/PlayersContext';
 
 const screenWidth = Dimensions.get('window').width;
-const imageAspectRatio = 290 / 178; 
+const imageAspectRatio = 290 / 178;
+
+const PlayerList: React.FC = () => {
+  const { players } = usePlayers();
+
+  return (
+    <FlatList
+      data={players}
+      keyExtractor={(item, index) => index.toString()}
+      renderItem={({ item }) => <Text style={styles.playerText}>{item}</Text>}
+    />
+  );
+};
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/man-drinking-water-out-of-a-bottle.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Tyste Karer!</ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Er gutta klare for å bli drita?</ThemedText>
-        <ThemedText>
-          Det er kun <ThemedText type="defaultSemiBold">EN</ThemedText> ting man trenger for dette spillet. 
-          {'\n'}
-          <ThemedText type="defaultSemiBold">DRIKKE!</ThemedText>{' '}
-        </ThemedText>
-      </ThemedView>
-      <TouchableOpacity
+    <PlayersProvider>
+      <ParallaxScrollView
+        headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+        headerImage={
+          <Image
+            source={require('@/assets/images/man-drinking-water-out-of-a-bottle.png')}
+            style={styles.reactLogo}
+          />
+        }>
+        <ThemedView style={styles.titleContainer}>
+          <ThemedText type="title">Tyste Karer!</ThemedText>
+        </ThemedView>
+        <AddPlayerInput />
+        <PlayerList />
+        <TouchableOpacity
           onPress={() => ""} 
-          style={[
-            styles.button
-          ]}
+          style={styles.button}
         >
-          <Text style={styles.buttonText}>
-            {"Start spillet"}
-          </Text>
+          <Text style={styles.buttonText}>{"Start spillet"}</Text>
         </TouchableOpacity>
-    </ParallaxScrollView>
+      </ParallaxScrollView>
+    </PlayersProvider>
   );
 }
 
@@ -70,5 +77,9 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  playerText: {
+    fontSize: 16,
+    paddingVertical: 4,
   }
 });
