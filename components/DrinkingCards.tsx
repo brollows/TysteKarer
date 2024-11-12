@@ -10,7 +10,7 @@ export interface DrinkingCard {
     { cardNumber: 1, header: 'Den var lei!', drinkingTask: '{playerName} må ta {drinkingAmount} slurker', drinkingAmount: 3 },
     { cardNumber: 2, header: 'Vis at du bryr deg!', drinkingTask: '{playerName} kan dele ut {drinkingAmount} slurker til valgfri person', drinkingAmount: 2 },
     { cardNumber: 3, header: 'Straff!', drinkingTask: 'Hvis {playerName} klarer å stå på henda kan personen dele ut {drinkingAmount} slurker.', drinkingAmount: 6 },
-    { cardNumber: 4, header: 'Straffer seg å være gay!', drinkingTask: '{playerName} er gay og må ta {drinkingAmount} slurker men personen i rommet {playerName} mener er nesten like gay!', drinkingAmount: 3 },
+    { cardNumber: 4, header: 'Straffer seg å være gay!', drinkingTask: '{playerName} er gay og må ta {drinkingAmount} slurker med personen i rommet {playerName} mener er nesten like gay!', drinkingAmount: 3 },
     { cardNumber: 5, header: 'Straff!', drinkingTask: '{playerName}, den var lei... ta {drinkingAmount} slurker', drinkingAmount: 4 },
     { cardNumber: 6, header: 'Gjelder å være høy!', drinkingTask: 'Høyeste personen kan dele ut {drinkingAmount} slurker til den laveste personen i rommet. Husk å le høyt og ta gjerne en slurk for å vise sympati', drinkingAmount: 2 },
     { cardNumber: 7, header: 'Dumt å være lavest men..!', drinkingTask: 'Siden det alltid er laveste eller høyeste som må drikke, hva om denne gangen så skal den nest laveste og den nest høyeste personen drikke {drinkingAmount} slurker!', drinkingAmount: 2 },
@@ -31,6 +31,16 @@ export interface DrinkingCard {
     { cardNumber: 22, header: 'Gambling bonanza', drinkingTask: '{playerName} velger seg en gambling addict. Dere to skal gamble slurker. Bli enig om hva dere skal gjøre og hvor mange slurker dere vil gamble. (Eksempel kan være å kaste terning der laveste må drikke)', drinkingAmount: 2 },
     { cardNumber: 23, header: 'Battle royale', drinkingTask: 'Her er det meningen å være igjen til slutt. {playerName} starter og skal skyte en annen spiller. Den spilleren er da ute, og kan da skyte en ny spiller. Spilleren som sitter igjen til slutt kan dele ut {drinkingAmount} slurker. Merk: det er ikke lov å skyte tilbake på personen som skøyt deg.', drinkingAmount: 4 },
     { cardNumber: 24, header: 'Forræder', drinkingTask: 'Bruk en kortstokk eller lignende. Bruk like mange kort som det er spillere. For hver 4. spiller så skal en av kortene være "ess | A". Stokk kortene og del ut ett kort til hver spiller. Sett på en timer på 2 minutter. Da skal man prøve å finne forræderen(e) (personen som har ess). Når timeren er ferdig er det ikke lov å diskutere mere. Tell ned fra 3 også peker alle på hvem de tror det er. Er personen en forræder så skal forræderen(e) drikke {drinkingAmount} slurker. Hvis ikke skal alle lojale drikke halvparten av det igjen.', drinkingAmount: 4 },
+    { cardNumber: 25, header: 'Bezzerwizzer', drinkingTask: 'Første personen som dunker i boret å forklarer kjennetegnet på biler i Notodden deler ut {drinkingAmount} slurker.', drinkingAmount: 3 },
+    { cardNumber: 26, header: 'Buddha', drinkingTask: 'Personen som klarer å holde en O-lyd lengst knipser aLekS på øret eller så må du drikke {drinkingAmount} slurker', drinkingAmount: 1 },
+    { cardNumber: 27, header: 'Dobbeldekker', drinkingTask: '{playerName}, Lad opp snusleppa med 2 snii og drikk {drinkingAmount} slurker', drinkingAmount: 2 },
+    { cardNumber: 28, header: 'Heksejakt', drinkingTask: '{playerName} skal DISSE neste person som blir nevnt i spillet. Opprettholder du dissingen i 2 runder kan du dele ut {drinkingAmount} slurker ', drinkingAmount: 4 },
+    { cardNumber: 29, header: 'Fuck, Marry, Kill', drinkingTask: '{playerName}, du skal ha fuck-marry-kill på tre personer de andre spillerne bestemmer. Ta en slurk for hvert svar!', drinkingAmount: 2 },
+    { cardNumber: 30, header: 'Hidden passive!', drinkingTask: 'Fra og med nå og ut spille kan du skrike “GUD VÆRE MED DEG” når noen banner. Da må personen som bannet drikke {drinkingAmount} slurker', drinkingAmount: 1 },
+    { cardNumber: 31, header: 'Sangfügel', drinkingTask: '{playerName} må synge en valgfri sang med sterke følelser. Hvis ikke dette er din stil må du drikke {drinkingAmount} slurker', drinkingAmount: 5 },
+    { cardNumber: 32, header: 'Sikkerhet på arbeidsplassen', drinkingTask: ' {playerName} holder en sikkerhetsbrief med personen til venstre, over hvordan man skal drikke ølen sin riktig, hva er farene og hva kan skje dersom man gjør det feil. Server et glass vann til {playerName}', drinkingAmount: 2 },
+    { cardNumber: 33, header: 'Butcher', drinkingTask: 'Kim tar en oversikt over gutta og velger 2 personer som må fyres opp litt. Sammen med Kim skal de skåle og ta {drinkingAmount} slurker. Er ikke Kim med i spillet tar alle og skåler med 1 slurk.', drinkingAmount: 3 },
+
   ];
   
   export const getDrinkingCard = (cardNumber: number): DrinkingCard | undefined => {
