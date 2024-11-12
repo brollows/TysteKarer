@@ -10,6 +10,8 @@ import { useSettings } from '@/components/SettingsContext';
 
 const screenWidth = Dimensions.get('window').width;
 const imageAspectRatio = 290 / 178;
+const cardMargin = 20;
+
 
 const PlayerList: React.FC = () => {
   const { players } = usePlayers();
@@ -24,6 +26,7 @@ const PlayerList: React.FC = () => {
     </ScrollView>
   );
 };
+
 export default function HomeScreen() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -34,51 +37,55 @@ export default function HomeScreen() {
   const { players } = usePlayers();
   const { brorenMinBoolean, fuckYouBoolean } = useSettings();
 
-  // Function to shuffle an array
-  const shuffleArray = (array: any[]): any[] => {
-    return array.sort(() => Math.random() - 0.5);
+  const shuffleArrayWithZeroSeparation = (array: any[]): any[] => {
+    const zeros = array.filter((item) => item === 0);
+    const nonZeros = array.filter((item) => item !== 0);
+    const shuffledNonZeros = nonZeros.sort(() => Math.random() - 0.5);
+    const result: any[] = [];
+    let zeroIndex = 0;
+
+    for (let i = 0; i < shuffledNonZeros.length; i++) {
+      if (zeroIndex < zeros.length && result.length >= 3 * (zeroIndex + 1)) {
+        result.push(0);
+        zeroIndex++;
+      }
+      result.push(shuffledNonZeros[i]);
+    }
+
+    return result;
   };
 
-  // Generate a random order of card numbers (excluding cardNumber 0)
   const generateRandomOrder = (): number[] => {
     const cardNumbers = drinkingCards
       .filter((card) => card.cardNumber !== 0)
       .map((card) => card.cardNumber);
-  
-    // Shuffle the card numbers
-    const shuffledCardNumbers = shuffleArray(cardNumbers);
-  
-    // If brorenMinBoolean is enabled, include a random number of '0's
+
+    const shuffledCardNumbers = shuffleArrayWithZeroSeparation(cardNumbers);
+
     if (brorenMinBoolean) {
       const maxZeros = Math.floor(cardNumbers.length / 4);
       const numberOfZeros = Math.max(1, Math.floor(Math.random() * maxZeros) + 1);
-  
-      // Add '0's to the shuffled card numbers
+
       for (let i = 0; i < numberOfZeros; i++) {
         shuffledCardNumbers.push(0);
       }
-  
-      // Shuffle the array again to mix in the '0's
-      return shuffleArray(shuffledCardNumbers);
+
+      return shuffleArrayWithZeroSeparation(shuffledCardNumbers);
     }
-  
-    // Return the shuffled card numbers without '0's if brorenMinBoolean is not enabled
+
     return shuffledCardNumbers;
   };
 
-  // Generate a list of random player names of the same length as cardOrder
   const generatePlayerOrder = (length: number): string[] => {
     return Array.from({ length }, () =>
       players.length > 0 ? players[Math.floor(Math.random() * players.length)] : 'No Players'
     );
   };
 
-  // Generate a list of random boolean values for "Fuck You" rule application
   const generateApplyOnCard = (length: number): boolean[] => {
     return Array.from({ length }, () => Math.random() > 0.5);
   };
 
-  // Function to start the game and generate a new random order
   const startGame = () => {
     const newCardOrder = generateRandomOrder();
     const newPlayerOrder = generatePlayerOrder(newCardOrder.length);
@@ -91,16 +98,14 @@ export default function HomeScreen() {
     setIsPlaying(true);
   };
 
-  // Get the current card and player based on the current index
   const card = getDrinkingCard(cardOrder[currentIndex]);
   const playerName = playerOrder[currentIndex];
   const shouldApplyFuckYou = fuckYouBoolean && applyOnCard[currentIndex];
   let currentCardText = '';
 
-  // Function to adjust drinking amount based on the "Fuck You" rule
   function fixedDrinkingAmount(drinkingAmount: number) {
     if (shouldApplyFuckYou) {
-      drinkingAmount = drinkingAmount * 5; // Increase the drinking amount
+      drinkingAmount = drinkingAmount * 3;
     }
     return drinkingAmount;
   }
@@ -109,7 +114,6 @@ export default function HomeScreen() {
     currentCardText = formatDrinkingTask(card, playerName, fixedDrinkingAmount(card.drinkingAmount)) || '';
   }
 
-  // Function to go to the previous card
   const goToPreviousCard = () => {
     if (isEndScreen) {
       setIsEndScreen(false);
@@ -118,7 +122,6 @@ export default function HomeScreen() {
     }
   };
 
-  // Function to go to the next card
   const goToNextCard = () => {
     if (currentIndex < cardOrder.length - 1) {
       setCurrentIndex((prevIndex) => prevIndex + 1);
@@ -127,7 +130,6 @@ export default function HomeScreen() {
     }
   };
 
-  // Function to end the game
   const endGame = () => {
     setIsPlaying(false);
     setCardOrder([]);
@@ -136,18 +138,24 @@ export default function HomeScreen() {
     setCurrentIndex(0);
   };
 
+  const handleCardPress = (event: any) => {
+    const touchX = event.nativeEvent.locationX;
+    if (touchX < screenWidth / 2) {
+      goToPreviousCard();
+    } else {
+      goToNextCard();
+    }
+  };
+
   return (
     <>
       <StatusBar hidden={true} />
       {isPlaying ? (
         isEndScreen ? (
           <View style={styles.gameScreen}>
-            <Text style={styles.gameText}>End of the Game!</Text>
+            <Text style={styles.gameText}>Spillet er slutt, men har du hvilepuls?</Text>
             <TouchableOpacity onPress={endGame} style={styles.endGameButton}>
-              <Text style={styles.buttonText}>End Game</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.arrowButton} onPress={goToPreviousCard}>
-              <Text style={styles.arrowText}>←</Text>
+              <Text style={styles.buttonText}>Avslutt spill</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -155,30 +163,13 @@ export default function HomeScreen() {
             <Text style={styles.cardCounter}>
               {cardOrder.length > 0 ? `${currentIndex + 1} / ${cardOrder.length}` : ''}
             </Text>
-
-            {currentCardText ? (
-              <View style={styles.cardNavigationContainer}>
-                {currentIndex > 0 && (
-                  <TouchableOpacity style={styles.arrowButton} onPress={goToPreviousCard}>
-                    <Text style={styles.arrowText}>←</Text>
-                  </TouchableOpacity>
-                )}
-
-                <View style={styles.cardContainer}>
-                  <Text style={styles.cardHeader}>{card?.header || 'No Header'}</Text>
-                  <View style={styles.cardDivider} />
-                  <Text style={styles.cardText}>{currentCardText}</Text>
-                </View>
-
-                {currentIndex < cardOrder.length - 1 && (
-                  <TouchableOpacity style={styles.arrowButton} onPress={goToNextCard}>
-                    <Text style={styles.arrowText}>→</Text>
-                  </TouchableOpacity>
-                )}
+            <TouchableOpacity style={styles.cardTouchableArea} onPress={handleCardPress}>
+              <View style={styles.cardContainer}>
+                <Text style={styles.cardHeader}>{card?.header || 'No Header'}</Text>
+                <View style={styles.cardDivider} />
+                <Text style={styles.cardText}>{currentCardText}</Text>
               </View>
-            ) : (
-              <Text style={styles.gameText}>Card or player not found.</Text>
-            )}
+            </TouchableOpacity>
             <TouchableOpacity onPress={endGame} style={styles.topRightButton}>
               <Text style={styles.buttonText}>X</Text>
             </TouchableOpacity>
@@ -238,12 +229,6 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     color: 'white',
   },
-  gameScreen: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-  },
   gameText: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -277,38 +262,6 @@ const styles = StyleSheet.create({
     color: '#00796b',
     fontWeight: 'bold',
   },
-  cardContainer: {
-    flex: 1,
-    padding: 20,
-    marginHorizontal: 10,
-    borderRadius: 10,
-    backgroundColor: '#e0f7fa',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  cardHeader: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    color: '#00796b',
-    marginBottom: 8,
-  },
-  cardDivider: {
-    height: 1,
-    backgroundColor: '#00796b',
-    marginVertical: 10,
-    opacity: 0.6,
-  },
-  cardText: {
-    fontSize: 18,
-    lineHeight: 26,
-    textAlign: 'center',
-    color: '#004d40',
-    marginVertical: 10,
-  },
   cardCounter: {
     position: 'absolute',
     top: 15,
@@ -325,4 +278,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
   },  
+  cardHeader: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#00796b',
+    marginBottom: 8,
+  },
+  cardDivider: {
+    height: 1,
+    backgroundColor: '#00796b',
+    marginVertical: 10,
+  },
+  cardText: {
+    fontSize: 18,
+    textAlign: 'center',
+    color: '#004d40',
+  },
+  gameScreen: {
+    flex: 1,
+    justifyContent: 'center', // Centers content vertically
+    alignItems: 'center', // Centers content horizontally
+    backgroundColor: '#f5f5f5',
+  },
+  
+  cardTouchableArea: {
+    width: screenWidth - 2 * cardMargin,
+    marginHorizontal: cardMargin,
+  },
+  
+  cardContainer: {
+    padding: 20,
+    borderRadius: 10,
+    backgroundColor: '#e0f7fa',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    width: screenWidth - 2 * cardMargin,
+    alignSelf: 'center', // Ensures the card is centered horizontally
+  },
 });

@@ -22,8 +22,8 @@ export const useSettings = (): SettingsContextType => {
 
 // SettingsProvider component
 export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [brorenMinBoolean, setBrorenMinBoolean] = useState(false);
-  const [fuckYouBoolean, setFuckYouBoolean] = useState(false);
+  const [brorenMinBoolean, setBrorenMinBoolean] = useState(true);
+  const [fuckYouBoolean, setFuckYouBoolean] = useState(true);
 
   return (
     <SettingsContext.Provider value={{ brorenMinBoolean, setBrorenMinBoolean, fuckYouBoolean, setFuckYouBoolean }}>

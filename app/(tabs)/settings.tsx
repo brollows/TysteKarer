@@ -57,7 +57,7 @@ export default function TabTwoScreen() {
         <ThemedText>
           Hvis{' '}
           <ThemedText type="defaultSemiBold">fuck you regelen</ThemedText>{' '}
-          er aktivert, så er det en sjans at straffeslurkene dobbler seg!
+          er aktivert, så er det en sjans at straffeslurkene tripler seg!
         </ThemedText>
         <TouchableOpacity
           onPress={handleToggleFuckYou}
