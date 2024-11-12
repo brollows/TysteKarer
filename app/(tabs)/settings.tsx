@@ -1,29 +1,42 @@
 import { StyleSheet, Image, TouchableOpacity, Text, Dimensions } from 'react-native';
-
-import React, { useState } from 'react'; // Import useState hook
-
+import React from 'react';
+import { useSettings } from '@/components/SettingsContext';
 import { Collapsible } from '@/components/Collapsible';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
 const screenWidth = Dimensions.get('window').width;
-const imageAspectRatio = 290 / 178; 
+const imageAspectRatio = 290 / 178;
 
 export default function TabTwoScreen() {
-  const [brorenMinBoolean, setBrorenMinBoolean] = useState(false);
-  const [fuckYouBoolean, setFuckYouBoolean] = useState(false);
+  const { brorenMinBoolean, setBrorenMinBoolean, fuckYouBoolean, setFuckYouBoolean } = useSettings();
+
+  // Function to toggle "Broren Min" setting
+  const handleToggleBrorenMin = () => {
+    setBrorenMinBoolean(!brorenMinBoolean);
+  };
+
+  // Function to toggle "Fuck You" setting
+  const handleToggleFuckYou = () => {
+    setFuckYouBoolean(!fuckYouBoolean);
+  };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={<Image
-        source={require('@/assets/images/skibbedi_ole.png')}
-        style={styles.skibbediOle}
-      />}>
+      headerImage={
+        <Image
+          source={require('../../assets/images/skibbedi_ole.png')}
+          style={styles.skibbediOle}
+        />
+      }
+    >
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Innstillinger</ThemedText>
       </ThemedView>
       <ThemedText>Her kan du sette drikkenivået og skru av og på morsomme regler.</ThemedText>
+
       <Collapsible title="BROREN MIN!">
         <ThemedText>
           Hvis{' '}
@@ -31,52 +44,39 @@ export default function TabTwoScreen() {
           er aktivert, så vil regelmessig en felles skål være påbudt!
         </ThemedText>
         <TouchableOpacity
-          onPress={() => setBrorenMinBoolean(!brorenMinBoolean)} 
-          style={[
-            styles.button,
-            brorenMinBoolean ? styles.buttonActive : styles.buttonInactive,
-          ]}
+          onPress={handleToggleBrorenMin}
+          style={[styles.button, brorenMinBoolean ? styles.buttonActive : styles.buttonInactive]}
         >
           <Text style={styles.buttonText}>
             {brorenMinBoolean ? "Aktivert" : "Ikke aktivert"}
           </Text>
         </TouchableOpacity>
- 
-      </Collapsible>      
+      </Collapsible>
 
       <Collapsible title="Fuck you regelen">
         <ThemedText>
           Hvis{' '}
           <ThemedText type="defaultSemiBold">fuck you regelen</ThemedText>{' '}
-          er aktivert, så er det en sjangs at straffeslurkene dobbler seg!
+          er aktivert, så er det en sjans at straffeslurkene dobbler seg!
         </ThemedText>
         <TouchableOpacity
-          onPress={() => setFuckYouBoolean(!fuckYouBoolean)}
-          style={[
-            styles.button,
-            fuckYouBoolean ? styles.buttonActive : styles.buttonInactive,
-          ]}
+          onPress={handleToggleFuckYou}
+          style={[styles.button, fuckYouBoolean ? styles.buttonActive : styles.buttonInactive]}
         >
           <Text style={styles.buttonText}>
             {fuckYouBoolean ? "Aktivert" : "Ikke aktivert"}
           </Text>
         </TouchableOpacity>
- 
       </Collapsible>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
   titleContainer: {
     flexDirection: 'row',
     gap: 8,
+    marginTop: 20,
   },
   button: {
     paddingVertical: 10,
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   skibbediOle: {
-    width: screenWidth, 
+    width: screenWidth,
     height: screenWidth / imageAspectRatio + 20,
     bottom: 0,
     left: 0,
