@@ -40,7 +40,10 @@ export interface DrinkingCard {
     { cardNumber: 31, header: 'Sangfügel', drinkingTask: '{playerName} må synge en valgfri sang med sterke følelser. Hvis ikke dette er din stil må du drikke {drinkingAmount} slurker', drinkingAmount: 5 },
     { cardNumber: 32, header: 'Sikkerhet på arbeidsplassen', drinkingTask: ' {playerName} holder en sikkerhetsbrief med personen til venstre, over hvordan man skal drikke ølen sin riktig, hva er farene og hva kan skje dersom man gjør det feil. Server et glass vann til {playerName}', drinkingAmount: 2 },
     { cardNumber: 33, header: 'Butcher', drinkingTask: 'Kim tar en oversikt over gutta og velger 2 personer som må fyres opp litt. Sammen med Kim skal de skåle og ta {drinkingAmount} slurker. Er ikke Kim med i spillet tar alle og skåler med 1 slurk.', drinkingAmount: 3 },
-
+    { cardNumber: 34, header: 'Rens', drinkingTask: '{playerName} lukter dritt, ta en dusj med {drinkingAmount} slurker på turen til et renere sinn', drinkingAmount: 2 },
+    { cardNumber: 35, header: 'Cleen shave', drinkingTask: '{playerName} har for hard hårvekst, noe må barberes vekk! Diskuter hvor det skal barberes! {drinkingAmount}', drinkingAmount: 2 },
+    { cardNumber: 36, header: 'Knokelek', drinkingTask: 'Svart på hvitt over hvilke 2-spillere som kjemper om æren til å dele ut {drinkingAmount} slurker', drinkingAmount: 5 },
+    { cardNumber: 37, header: 'Veik', drinkingTask: 'Håndbak, {playerName} og personen som sitter 2 plasser til høyere må i duell om {drinkingAmount} slurker', drinkingAmount: 5 },    
   ];
   
   export const getDrinkingCard = (cardNumber: number): DrinkingCard | undefined => {

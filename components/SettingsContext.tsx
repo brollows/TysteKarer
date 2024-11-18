@@ -6,6 +6,8 @@ type SettingsContextType = {
   setBrorenMinBoolean: (value: boolean) => void;
   fuckYouBoolean: boolean;
   setFuckYouBoolean: (value: boolean) => void;
+  horseRaceBoolean: boolean;
+  setHorseRaceBoolean: (value: boolean) => void;
 };
 
 // Create the context
@@ -24,9 +26,10 @@ export const useSettings = (): SettingsContextType => {
 export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [brorenMinBoolean, setBrorenMinBoolean] = useState(true);
   const [fuckYouBoolean, setFuckYouBoolean] = useState(true);
+  const [horseRaceBoolean, setHorseRaceBoolean] = useState(true);
 
   return (
-    <SettingsContext.Provider value={{ brorenMinBoolean, setBrorenMinBoolean, fuckYouBoolean, setFuckYouBoolean }}>
+    <SettingsContext.Provider value={{ brorenMinBoolean, setBrorenMinBoolean, fuckYouBoolean, setFuckYouBoolean, horseRaceBoolean, setHorseRaceBoolean }}>
       {children}
     </SettingsContext.Provider>
   );

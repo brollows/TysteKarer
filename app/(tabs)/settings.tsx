@@ -10,7 +10,7 @@ const screenWidth = Dimensions.get('window').width;
 const imageAspectRatio = 290 / 178;
 
 export default function TabTwoScreen() {
-  const { brorenMinBoolean, setBrorenMinBoolean, fuckYouBoolean, setFuckYouBoolean } = useSettings();
+  const { brorenMinBoolean, setBrorenMinBoolean, fuckYouBoolean, setFuckYouBoolean, horseRaceBoolean, setHorseRaceBoolean } = useSettings();
 
   // Function to toggle "Broren Min" setting
   const handleToggleBrorenMin = () => {
@@ -20,6 +20,11 @@ export default function TabTwoScreen() {
   // Function to toggle "Fuck You" setting
   const handleToggleFuckYou = () => {
     setFuckYouBoolean(!fuckYouBoolean);
+  };
+
+  // Function to toggle "Fuck You" setting
+  const handleToggleHorseRace = () => {
+    setHorseRaceBoolean(!horseRaceBoolean);
   };
 
   return (
@@ -65,6 +70,22 @@ export default function TabTwoScreen() {
         >
           <Text style={styles.buttonText}>
             {fuckYouBoolean ? "Aktivert" : "Ikke aktivert"}
+          </Text>
+        </TouchableOpacity>
+      </Collapsible>
+
+      <Collapsible title="Horce Race">
+        <ThemedText>
+          Hvis{' '}
+          <ThemedText type="defaultSemiBold">Horse Race</ThemedText>{' '}
+          er aktivert, så vil horce race oppstå en gang i løppet av spillet!
+        </ThemedText>
+        <TouchableOpacity
+          onPress={handleToggleHorseRace}
+          style={[styles.button, horseRaceBoolean ? styles.buttonActive : styles.buttonInactive]}
+        >
+          <Text style={styles.buttonText}>
+            {horseRaceBoolean ? "Aktivert" : "Ikke aktivert"}
           </Text>
         </TouchableOpacity>
       </Collapsible>

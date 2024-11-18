@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Dimensions, TouchableOpacity, Text, Image, ScrollView, View, StatusBar } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Dimensions, TouchableOpacity, Text, Image, ScrollView, View, StatusBar, Animated } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -7,6 +7,7 @@ import AddPlayerInput from '../../components/AddPlayerInput';
 import { usePlayers } from '../../components/PlayersContext';
 import { drinkingCards, formatDrinkingTask, getDrinkingCard } from '../../components/DrinkingCards';
 import { useSettings } from '@/components/SettingsContext';
+import HorseRace from '@/components/HorseRace';
 
 const screenWidth = Dimensions.get('window').width;
 const imageAspectRatio = 290 / 178;
@@ -35,7 +36,7 @@ export default function HomeScreen() {
   const [applyOnCard, setApplyOnCard] = useState<boolean[]>([]);
   const [isEndScreen, setIsEndScreen] = useState(false);
   const { players } = usePlayers();
-  const { brorenMinBoolean, fuckYouBoolean } = useSettings();
+  const { brorenMinBoolean, fuckYouBoolean, horseRaceBoolean } = useSettings();
 
   const shuffleArrayWithZeroSeparation = (array: any[]): any[] => {
     const zeros = array.filter((item) => item === 0);
@@ -43,13 +44,23 @@ export default function HomeScreen() {
     const shuffledNonZeros = nonZeros.sort(() => Math.random() - 0.5);
     const result: any[] = [];
     let zeroIndex = 0;
+    let addHorseRace = false;
 
     for (let i = 0; i < shuffledNonZeros.length; i++) {
-      if (zeroIndex < zeros.length && result.length >= 3 * (zeroIndex + 1)) {
+      if (zeroIndex < zeros.length && result.length >= 3 * (zeroIndex + 1) && Math.random() < 0.5) {
         result.push(0);
         zeroIndex++;
       }
+
+      if (horseRaceBoolean && !addHorseRace && Math.random() < 0.1) { // 10% chance to insert -1
+        result.push(-1);
+        addHorseRace = true;
+      }
+
       result.push(shuffledNonZeros[i]);
+    }
+    if (horseRaceBoolean && !addHorseRace) {
+      result.push(-1)
     }
 
     return result;
@@ -69,8 +80,9 @@ export default function HomeScreen() {
       for (let i = 0; i < numberOfZeros; i++) {
         shuffledCardNumbers.push(0);
       }
-
-      return shuffleArrayWithZeroSeparation(shuffledCardNumbers);
+      let tempShuffleArrayWithZeroSeparation = shuffleArrayWithZeroSeparation(shuffledCardNumbers);
+      console.log(tempShuffleArrayWithZeroSeparation)
+      return tempShuffleArrayWithZeroSeparation;
     }
 
     return shuffledCardNumbers;
@@ -88,6 +100,18 @@ export default function HomeScreen() {
 
   const startGame = () => {
     const newCardOrder = generateRandomOrder();
+    const newPlayerOrder = generatePlayerOrder(newCardOrder.length);
+    const newApplyOnCard = generateApplyOnCard(newCardOrder.length);
+    setCardOrder(newCardOrder);
+    setPlayerOrder(newPlayerOrder);
+    setApplyOnCard(newApplyOnCard);
+    setCurrentIndex(0);
+    setIsEndScreen(false);
+    setIsPlaying(true);
+  };
+
+  const startGameHorseRaceOnly = () => {
+    const newCardOrder = [-1];
     const newPlayerOrder = generatePlayerOrder(newCardOrder.length);
     const newApplyOnCard = generateApplyOnCard(newCardOrder.length);
     setCardOrder(newCardOrder);
@@ -151,6 +175,21 @@ export default function HomeScreen() {
     <>
       <StatusBar hidden={true} />
       {isPlaying ? (
+        //HorseRace when currentIndex == 1
+        cardOrder[currentIndex] === -1 ? (
+        
+          <View style={styles.gameScreen}>
+          <Text style={styles.cardCounter}>
+            {cardOrder.length > 0 ? `${currentIndex + 1} / ${cardOrder.length}` : ''}
+          </Text>
+          
+          <HorseRace />
+          
+          <TouchableOpacity onPress={endGame} style={styles.topRightButton}>
+            <Text style={styles.buttonText}>X</Text>
+          </TouchableOpacity>
+        </View>        
+        ) :
         isEndScreen ? (
           <View style={styles.gameScreen}>
             <Text style={styles.gameText}>Spillet er slutt, men har du hvilepuls?</Text>
@@ -193,6 +232,9 @@ export default function HomeScreen() {
           <TouchableOpacity onPress={startGame} style={styles.button}>
             <Text style={styles.buttonText}>Start spillet</Text>
           </TouchableOpacity>
+          <TouchableOpacity onPress={startGameHorseRaceOnly} style={styles.horceRaceButton}>
+            <Text style={styles.buttonText}>Horse Race</Text>
+          </TouchableOpacity>
         </ParallaxScrollView>
       )}
     </>
@@ -220,6 +262,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
     backgroundColor: 'green',
   },
+  horceRaceButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+    backgroundColor: 'lightblue',
+  },
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
@@ -243,6 +293,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: 'grey',
     alignItems: 'center',
+    zIndex: 99,
   },
   cardNavigationContainer: {
     flexDirection: 'row',
@@ -269,6 +320,7 @@ const styles = StyleSheet.create({
     color: '#d3d3d3', // Light grey color
     fontSize: 18,
     fontWeight: 'bold',
+    zIndex: 99,
   },
   endGameButton: {
     paddingVertical: 10,
@@ -297,16 +349,14 @@ const styles = StyleSheet.create({
   },
   gameScreen: {
     flex: 1,
-    justifyContent: 'center', // Centers content vertically
-    alignItems: 'center', // Centers content horizontally
+    justifyContent: 'center', 
+    alignItems: 'center', 
     backgroundColor: '#f5f5f5',
   },
-  
   cardTouchableArea: {
     width: screenWidth - 2 * cardMargin,
     marginHorizontal: cardMargin,
   },
-  
   cardContainer: {
     padding: 20,
     borderRadius: 10,
@@ -317,6 +367,53 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     width: screenWidth - 2 * cardMargin,
-    alignSelf: 'center', // Ensures the card is centered horizontally
+    alignSelf: 'center', 
+  },
+  horseRaceScreen: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+  },
+  horseRaceText: {
+    fontSize: 32,
+    color: '#fff',
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  horseContainer: {
+    width: '100%',
+    height: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  horseName: {
+    color: '#fff',
+    fontSize: 18,
+    marginRight: 10,
+    width: 100,
+  },
+  horse: {
+    width: 20,
+    height: 20,
+    backgroundColor: 'lightblue',
+    borderRadius: 10,
+    position: 'absolute',
+    left: 120,
+  },
+  startButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 20,
+    backgroundColor: 'green',
+  },
+  winnerText: {
+    fontSize: 24,
+    color: 'yellow',
+    fontWeight: 'bold',
+    marginTop: 20,
   },
 });
