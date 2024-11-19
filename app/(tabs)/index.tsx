@@ -8,6 +8,7 @@ import { usePlayers } from '../../components/PlayersContext';
 import { drinkingCards, formatDrinkingTask, getDrinkingCard } from '../../components/DrinkingCards';
 import { useSettings } from '@/components/SettingsContext';
 import HorseRace from '@/components/HorseRace';
+import PlinkoGame from '@/components/PlinkoGame';
 
 const screenWidth = Dimensions.get('window').width;
 const imageAspectRatio = 290 / 178;
@@ -122,6 +123,18 @@ export default function HomeScreen() {
     setIsPlaying(true);
   };
 
+  const startGamePlinkoOnly = () => {
+    const newCardOrder = [-2];
+    const newPlayerOrder = generatePlayerOrder(newCardOrder.length);
+    const newApplyOnCard = generateApplyOnCard(newCardOrder.length);
+    setCardOrder(newCardOrder);
+    setPlayerOrder(newPlayerOrder);
+    setApplyOnCard(newApplyOnCard);
+    setCurrentIndex(0);
+    setIsEndScreen(false);
+    setIsPlaying(true);
+  };
+
   const card = getDrinkingCard(cardOrder[currentIndex]);
   const playerName = playerOrder[currentIndex];
   const shouldApplyFuckYou = fuckYouBoolean && applyOnCard[currentIndex];
@@ -189,6 +202,20 @@ export default function HomeScreen() {
             <Text style={styles.buttonText}>X</Text>
           </TouchableOpacity>
         </View>        
+        ) :         
+        cardOrder[currentIndex] === -2 ? (
+        
+          <View style={styles.gameScreen}>
+          <Text style={styles.cardCounter}>
+            {cardOrder.length > 0 ? `${currentIndex + 1} / ${cardOrder.length}` : ''}
+          </Text>
+          
+          <PlinkoGame />
+          
+          <TouchableOpacity onPress={endGame} style={styles.topRightButton}>
+            <Text style={styles.buttonText}>X</Text>
+          </TouchableOpacity>
+        </View>        
         ) :
         isEndScreen ? (
           <View style={styles.gameScreen}>
@@ -235,6 +262,9 @@ export default function HomeScreen() {
           <TouchableOpacity onPress={startGameHorseRaceOnly} style={styles.horceRaceButton}>
             <Text style={styles.buttonText}>Horse Race</Text>
           </TouchableOpacity>
+          <TouchableOpacity onPress={startGamePlinkoOnly} style={styles.plinkoButton}>
+            <Text style={styles.buttonText}>Plinko</Text>
+          </TouchableOpacity>
         </ParallaxScrollView>
       )}
     </>
@@ -269,6 +299,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
     backgroundColor: 'lightblue',
+  },
+  plinkoButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
+    backgroundColor: 'pink',
   },
   buttonText: {
     color: 'white',
