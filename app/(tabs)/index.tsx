@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     marginTop: 10,
-    backgroundColor: 'pink',
+    backgroundColor: 'blue',
   },
   buttonText: {
     color: 'white',

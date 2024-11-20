@@ -7,27 +7,27 @@ interface BallPosition {
 }
 
 const bucketColors = [
-  '#FF3B30', // 33x
-  '#FF9500', // 11x
-  '#FFCC00', // 8x
-  '#FFDD00', // 4x
-  '#FFE500', // 2x
-  '#FFE700', // 2x
-  '#FFE700', // 1x
-  '#FFE700', // 1x
-  '#FFE700', // 2x
-  '#FFE500', // 2x
-  '#FFDD00', // 4x
-  '#FFCC00', // 8x
-  '#FF9500', // 11x
-  '#FF3B30', // 33x
+  '#e64747', // 10x
+  '#e09c3b', // 8x
+  '#e09c3b', // 6x
+  '#e6e22e', // 4x
+  '#e6e22e', // 2x
+  '#e6e22e', // 1x
+  '#8fb935', // 0x
+  '#8fb935', // 0x
+  '#e6e22e', // 1x
+  '#e6e22e', // 2x
+  '#e6e22e', // 4x
+  '#e09c3b', // 6x
+  '#e09c3b', // 8x
+  '#e64747', // 10x
 ];
 
 const PlinkoGame: React.FC = () => {
     const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
     const boardWidth = screenWidth;
     const boardHeight = screenHeight * 0.6; // Use 60% of the screen height
-    const bucketDrinks = [33, 11, 8, 4, 2, 2, 1, 1, 2, 2, 4, 8, 11, 33]; // Drink values
+    const bucketDrinks = [10, 8, 6, 4, 2, 1, 0, 0, 1, 2, 4, 6, 8, 10]; // Drink values
     const numRows = bucketDrinks.length;
     const numColumns = numRows + 1;
   
@@ -68,115 +68,122 @@ const PlinkoGame: React.FC = () => {
     function randomFactor() {
       const random = Math.random() * 2 - 1; // Generates a number between -1 and 1
       const biased = Math.sign(random) * Math.pow(Math.abs(random), 2); // Bias towards 0
-      return biased * 35;
+      return biased * 25;
     }
   
     const dropBall = () => {
-        setBallDropping(true);
-        const randomFactorValue: number = randomFactor();
-        const startX = (boardWidth / 2 - pegSize / 4) + randomFactorValue; // Start at the center of the screen horizontally
-        const startY = 0; // Start from the top of the screen
-      
-        setBallPosition({
-          x: startX,
-          y: new Animated.Value(startY),
-        });
-      
-        let ballX = startX;
-        const ballY = new Animated.Value(startY);
-      
-        // Ball movement variables
-        let velocityX = 0; // Horizontal velocity
-        let velocityY = 0; // Vertical velocity
-        const gravity = 0.5; // Gravity that affects the downward acceleration
-        let bounceFactor = -0.3; // Reduces bounce intensity (negative for upward velocity)
-        const horizontalBounce = pegSize / 11; // Adjust horizontal bounce strength
-        const maxVelocity = pegSize / 2; // Cap maximum velocity (to avoid flying off)
-      
-        const interval = 16; // 60 FPS
-        let currentY = startY;
-      
-        const movement = setInterval(() => {
-          // Apply gravity to vertical velocity
-          velocityY += gravity;
-          velocityY += 0.005;
-      
-          // Clamp velocities to avoid excessive speeds
-          velocityX = Math.max(Math.min(velocityX, maxVelocity), -maxVelocity);
-          velocityY = Math.max(Math.min(velocityY, maxVelocity), -maxVelocity);
-      
-          velocityX *= 0.96;
-      
-          // Update positions
-          currentY += velocityY;
-          ballX += velocityX;
-      
-          // Check for collision with pegs
-          for (const peg of pegs) {
-            const distance = Math.sqrt(
-              Math.pow(ballX - peg.x, 2) + Math.pow(currentY - peg.y, 2)
-            );
-      
-            // If the ball hits a peg
-            if (distance < pegSize / 3) {
-              // Bounce vertically upward with reduced velocity
-              velocityY *= bounceFactor;
-              bounceFactor += 0.03;
-      
-              // Adjust horizontal velocity based on collision direction
-              if (ballX < peg.x) {
-                velocityX = -horizontalBounce; // Bounce to the left
-              } else {
-                velocityX = horizontalBounce; // Bounce to the right
-              }
-              break; // Exit the loop after handling one collision
+      setBallDropping(true);
+      const randomFactorValue: number = randomFactor() + 3;
+      const startX = (boardWidth / 2 - pegSize / 4) + randomFactorValue; // Start at the center of the screen horizontally
+      const startY = 0; // Start from the top of the screen
+    
+      setBallPosition({
+        x: startX,
+        y: new Animated.Value(startY),
+      });
+    
+      let ballX = startX;
+      const ballY = new Animated.Value(startY);
+    
+      // Ball movement variables
+      let velocityX = 0; // Horizontal velocity
+      let velocityY = Math.random() * 2 + 10; // Vertical velocity
+      const gravity = 0.8; // Gravity that affects the downward acceleration
+      let bounceFactor = -0.55; // Reduces bounce intensity (negative for upward velocity)
+      const horizontalBounce = pegSize / 11; // Adjust horizontal bounce strength
+      const maxVelocity = pegSize / 2; // Cap maximum velocity (to avoid flying off)
+    
+      const interval = 20; // 60 FPS
+      let currentY = startY;
+    
+      const movement = setInterval(() => {
+        // Apply gravity to vertical velocity
+        velocityY += gravity;
+        velocityY += 0.005;
+    
+        // Clamp velocities to avoid excessive speeds
+        velocityX = Math.max(Math.min(velocityX, maxVelocity), -maxVelocity);
+        velocityY = Math.max(Math.min(velocityY, maxVelocity), -maxVelocity);
+    
+        velocityX *= 0.96;
+    
+        // Update positions
+        currentY += velocityY;
+        ballX += velocityX;
+    
+        // Check for collision with pegs
+        for (const peg of pegs) {
+          const distance = Math.sqrt(
+            Math.pow(ballX - peg.x, 2) + Math.pow(currentY - peg.y, 2)
+          );
+    
+          // If the ball hits a peg
+          if (distance < pegSize / 3) {
+            // Bounce vertically upward with reduced velocity
+            velocityY *= bounceFactor;
+            bounceFactor += 0.03;
+    
+            // Adjust horizontal velocity based on collision direction
+            if (ballX < peg.x) {
+              velocityX = -horizontalBounce; // Bounce to the left
+            } else {
+              velocityX = horizontalBounce; // Bounce to the right
             }
+            break; // Exit the loop after handling one collision
           }
-      
-          // Stop animation when ball reaches the bottom
-          if (currentY >= boardHeight - bucketHeight) {
-            clearInterval(movement);
-      
-            // Handle edge cases for far left or far right
-            let landedBucket = Math.floor((ballX / boardWidth) * numColumns);
-            if (landedBucket < 0) {
-              landedBucket = 0; // Far left bucket
-            } else if (landedBucket >= bucketDrinks.length) {
-              landedBucket = bucketDrinks.length - 1; // Far right bucket
-            }
-      
-            setSelectedBucket(landedBucket);
-            setBallDropping(false);
-      
-            // Animate bucket size
-            Animated.sequence([
-              Animated.timing(bucketScales[landedBucket], {
-                toValue: 1.5, // Grow size
-                duration: 200,
-                useNativeDriver: true,
-              }),
-              Animated.timing(bucketScales[landedBucket], {
-                toValue: 1, // Shrink back
-                duration: 200,
-                useNativeDriver: true,
-              }),
-            ]).start();
-      
-            // Reset ball position for next drop
-            setBallPosition({
-              x: null,
-              y: new Animated.Value(0),
-            });
+        }
+    
+        // Stop animation when ball reaches the bottom
+        if (currentY >= boardHeight - bucketHeight) {
+          clearInterval(movement);
+    
+          // Handle edge cases for far left or far right
+          let landedBucket = Math.floor((ballX / boardWidth) * numColumns);
+          if (landedBucket < 0) {
+            landedBucket = 0; // Far left bucket
+          } else if (landedBucket >= bucketDrinks.length) {
+            landedBucket = bucketDrinks.length - 1; // Far right bucket
           }
-      
-          // Update ball position
-          ballY.setValue(currentY);
+    
+          setSelectedBucket(landedBucket);
+          setBallDropping(false);
+    
+          // Animate bucket size
+          Animated.sequence([
+            Animated.timing(bucketScales[landedBucket], {
+              toValue: 1.5, // Grow size
+              duration: 200,
+              useNativeDriver: true,
+            }),
+            Animated.timing(bucketScales[landedBucket], {
+              toValue: 1, // Shrink back
+              duration: 200,
+              useNativeDriver: true,
+            }),
+          ]).start();
+    
+          // Check if the ball landed in one of the two middle buckets with 0 value
+          if (bucketDrinks[landedBucket] === 0 && (landedBucket === 6 || landedBucket === 7)) {
+            // Drop the ball again
+            setTimeout(() => dropBall(), 500); // Delay for clarity
+          }
+    
+          // Reset ball position for next drop
           setBallPosition({
-            x: ballX,
-            y: ballY,
+            x: null,
+            y: new Animated.Value(0),
           });
-        }, interval);
-      };
+        }
+    
+        // Update ball position
+        ballY.setValue(currentY);
+        setBallPosition({
+          x: ballX,
+          y: ballY,
+        });
+      }, interval);
+    };
+    
       
   
     return (
@@ -228,8 +235,9 @@ const PlinkoGame: React.FC = () => {
                     transform: [{ scale: bucketScales[index] }], // Scale animation
                   },
                 ]}
-              >
-                <Text style={styles.bucketText}>{drink}</Text>
+              > {drink === 0 ? ( <Text style={styles.bucketText}>∞</Text>) : 
+              (<Text style={styles.bucketText}>{drink}</Text>)}
+                
               </Animated.View>
             ))}
           </View>
@@ -238,7 +246,7 @@ const PlinkoGame: React.FC = () => {
         {/* Display result */}
         {selectedBucket !== null && (
           <View style={styles.resultContainer}>
-            {!ballDropping ? (
+            {!ballDropping && bucketDrinks[selectedBucket] !== 0 ? (
               <Text style={styles.resultText}>
                 Drikk {bucketDrinks[selectedBucket]} slurker!
               </Text>
@@ -249,7 +257,14 @@ const PlinkoGame: React.FC = () => {
         )}
   
         {/* Drop ball button */}
-        <TouchableOpacity style={styles.dropButton} onPress={dropBall}>
+        <TouchableOpacity
+          style={[
+            styles.dropButton,
+            ballDropping && styles.dropButtonDisabled, // Apply disabled style if ballDropping is true
+          ]}
+          onPress={dropBall}
+          disabled={ballDropping} // Disable button when ballDropping is true
+        >
           <Text style={styles.dropButtonText}>Slipp ball</Text>
         </TouchableOpacity>
       </View>
@@ -294,10 +309,10 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   bucketText: {
-    fontSize: 12,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#ffffff',
-  },
+    color: 'black',
+},
   resultContainer: {
     marginTop: 20,
     padding: 10,
@@ -320,6 +335,9 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  dropButtonDisabled: {
+    backgroundColor: '#c19658', // Light gray to indicate disabled state
   },
 });
 
