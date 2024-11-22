@@ -44,10 +44,6 @@ const PlinkoGame: React.FC = () => {
     ); // Initial scale of 1 for each bucket
     const [ballDropping, setBallDropping] = useState<boolean>(false); // Track if the ball is dropping
 
-    const [bucketStats, setBuckets] = useState<number[]>([]);
-    const addToBucketStats = (value: number) => {
-      setBuckets((prevBuckets) => [...prevBuckets, value]); // Add the new value
-    };
 
     const generatePegs = () => {
       const pegs = [];
@@ -156,7 +152,6 @@ const PlinkoGame: React.FC = () => {
     
               setSelectedBucket(landedBucket);
               setBallDropping(false);
-              addToBucketStats(landedBucket);
       
     
               // Animate bucket size
@@ -194,16 +189,6 @@ const PlinkoGame: React.FC = () => {
       // Wait for animation to complete
       await updatePosition();
     };
-    
-    async function simulateDrop() {
-      for(let i = 0; i < 1000; i++) {
-        await dropBall();
-      }
-    }
-      
-    useEffect(() => {
-      console.log(bucketStats);
-    }, [bucketStats]);
   
 
     return (
@@ -294,17 +279,6 @@ const PlinkoGame: React.FC = () => {
           <Text style={styles.dropButtonText}>Slipp ball</Text>
         </TouchableOpacity>
 
-         {/* Drop ball button */}
-         <TouchableOpacity
-          style={[
-            styles.dropButton,
-            ballDropping && styles.dropButtonDisabled, // Apply disabled style if ballDropping is true
-          ]}
-          onPress={simulateDrop}
-          disabled={ballDropping} // Disable button when ballDropping is true
-        >
-          <Text style={styles.dropButtonText}>Simuler 1000 slipp</Text>
-        </TouchableOpacity>
       </View>
     );
   };

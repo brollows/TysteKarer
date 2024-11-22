@@ -7,7 +7,7 @@ import AddPlayerInput from '../../components/AddPlayerInput';
 import { usePlayers } from '../../components/PlayersContext';
 import { drinkingCards, formatDrinkingTask, getDrinkingCard } from '../../components/DrinkingCards';
 import { useSettings } from '@/components/SettingsContext';
-import HorseRace from '@/components/HorseRace';
+import CarRace from '@/components/CarRace';
 import PlinkoGame from '@/components/PlinkoGame';
 
 const screenWidth = Dimensions.get('window').width;
@@ -111,7 +111,7 @@ export default function HomeScreen() {
     setIsPlaying(true);
   };
 
-  const startGameHorseRaceOnly = () => {
+  const startGameCarRaceOnly = () => {
     const newCardOrder = [-1];
     const newPlayerOrder = generatePlayerOrder(newCardOrder.length);
     const newApplyOnCard = generateApplyOnCard(newCardOrder.length);
@@ -188,7 +188,7 @@ export default function HomeScreen() {
     <>
       <StatusBar hidden={true} />
       {isPlaying ? (
-        //HorseRace when currentIndex == 1
+        //Car race when currentIndex == -1
         cardOrder[currentIndex] === -1 ? (
         
           <View style={styles.gameScreen}>
@@ -196,7 +196,7 @@ export default function HomeScreen() {
             {cardOrder.length > 0 ? `${currentIndex + 1} / ${cardOrder.length}` : ''}
           </Text>
           
-          <HorseRace />
+          <CarRace />
           
           <TouchableOpacity onPress={endGame} style={styles.topRightButton}>
             <Text style={styles.buttonText}>X</Text>
@@ -259,8 +259,8 @@ export default function HomeScreen() {
           <TouchableOpacity onPress={startGame} style={styles.button}>
             <Text style={styles.buttonText}>Start spillet</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={startGameHorseRaceOnly} style={styles.horceRaceButton}>
-            <Text style={styles.buttonText}>Horse Race</Text>
+          <TouchableOpacity onPress={startGameCarRaceOnly} style={styles.horceRaceButton}>
+            <Text style={styles.buttonText}>Billøp</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={startGamePlinkoOnly} style={styles.plinkoButton}>
             <Text style={styles.buttonText}>Plinko</Text>
