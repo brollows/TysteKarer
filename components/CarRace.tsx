@@ -8,10 +8,15 @@ import {
   ImageBackground,
   Dimensions,
   Image,
+  Easing,
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
 const CarRace: React.FC = () => {
   const [isRacing, setIsRacing] = useState(false);
+  const [winner, setWinner] = useState<string | null>(null);
+  const [selectedLaps, setSelectedLaps] = useState<number>(1);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const carAnimations = useRef<Animated.Value[]>([]).current;
   const backgroundOffset = useRef({ x: new Animated.Value(0), y: new Animated.Value(0) }).current;
 
@@ -20,6 +25,8 @@ const CarRace: React.FC = () => {
 
   const trackWidth = 800;
   const trackHeight = 534;
+
+  const carSpeed = 0.2; // Speed constant (lower value = slower)
 
   const raceLine = [
     { x: 327, y: 451 },
@@ -48,8 +55,20 @@ const CarRace: React.FC = () => {
     { x: 106, y: 372 },
     { x: 117, y: 398 },
     { x: 151, y: 430 },
-    { x: 327, y: 451 },
   ];
+
+  const finishLine = { x: 330, y: 451 };
+
+  const generateCompleteRaceLine = (laps: number) => {
+    const completeLine = [];
+    for (let i = 0; i < laps; i++) {
+      completeLine.push(...raceLine);
+    }
+    completeLine.push(finishLine);
+    return completeLine;
+  };
+
+  const [completeRaceLine, setCompleteRaceLine] = useState(generateCompleteRaceLine(selectedLaps));
 
   const carImages = [
     require('../assets/images/car-red.png'),
@@ -57,6 +76,8 @@ const CarRace: React.FC = () => {
     require('../assets/images/car-orange.png'),
     require('../assets/images/car-green.png'),
   ];
+
+  const carNames = ['Rød', 'Blå', 'Ginger', 'Grønn'];
 
   useEffect(() => {
     carAnimations.length = 4;
@@ -70,18 +91,110 @@ const CarRace: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    setCompleteRaceLine(generateCompleteRaceLine(selectedLaps));
+  }, [selectedLaps]);
+
   const resetAnimations = () => {
     carAnimations.forEach((animValue) => animValue.setValue(0));
+    setWinner(null);
   };
+
+  const startCountdown = () => {
+    setCountdown(3); // Start countdown at 3
+    let currentCount = 3;
+
+    const interval = setInterval(() => {
+      currentCount -= 1;
+      setCountdown(currentCount);
+
+      if (currentCount === 0) {
+        clearInterval(interval);
+        setCountdown(null); // Hide countdown
+        startRace(); // Start the race after countdown
+      }
+    }, 1000);
+  };
+
+  const calculateDistance = (pointA: { x: number; y: number }, pointB: { x: number; y: number }) => {
+    const dx = pointB.x - pointA.x;
+    const dy = pointB.y - pointA.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
+
+  const calculateCumulativeDistances = (line: { x: number; y: number }[]) => {
+    const distances = [0];
+    for (let i = 1; i < line.length; i++) {
+      const distance = calculateDistance(line[i - 1], line[i]);
+      distances.push(distances[i - 1] + distance);
+    }
+    return distances;
+  };
+
+  let cumulativeDistances: number[] = calculateCumulativeDistances(completeRaceLine);
+
+  useEffect(() => {
+    cumulativeDistances = calculateCumulativeDistances(completeRaceLine);
+  }, [completeRaceLine]);
+
+  const interpolateRotation = (
+    progress: number,
+    distances: number[],
+    line: { x: number; y: number }[]
+  ) => {
+    let startIndex = 0;
+    while (progress > distances[startIndex + 1] && startIndex < distances.length - 2) {
+      startIndex++;
+    }
+  
+    const startPoint = line[startIndex];
+    const endPoint = line[startIndex + 1];
+  
+    // Calculate the current angle
+    const dx = endPoint.x - startPoint.x;
+    const dy = endPoint.y - startPoint.y;
+    let angle = Math.atan2(dy, dx) * (180 / Math.PI); // Convert radians to degrees
+    if (startIndex > 0) {
+      // Calculate the previous angle
+      const prevPoint = line[startIndex - 1];
+      const prevDx = startPoint.x - prevPoint.x;
+      const prevDy = startPoint.y - prevPoint.y;
+      const prevAngle = Math.atan2(prevDy, prevDx) * (180 / Math.PI);
+  
+      // Calculate the angular difference directly without constraining
+      let deltaAngle = angle - prevAngle;
+  
+      // Adjust the current angle based on the delta
+      angle = prevAngle + deltaAngle;
+      console.log(startIndex + " " + angle)
+
+    }
+  
+    return angle; // Return the unconstrained angle
+  };
+  
+  
+  
+  
 
   const startRace = () => {
     resetAnimations();
+
     carAnimations.forEach((animValue, carIndex) => {
+      const totalDistance = cumulativeDistances[cumulativeDistances.length - 1];
+
       Animated.timing(animValue, {
-        toValue: raceLine.length - 1,
-        duration: 10000 + carIndex * 500,
+        toValue: totalDistance,
+        duration: totalDistance / carSpeed,
+        easing: Easing.linear,
         useNativeDriver: false,
-      }).start();
+      }).start(({ finished }) => {
+        if (finished) {
+          setWinner((prevWinner) =>
+            prevWinner === null ? carNames[carIndex] : prevWinner
+          );
+        }
+      });
     });
 
     followLeadingCar();
@@ -91,29 +204,42 @@ const CarRace: React.FC = () => {
     const leadingCar = carAnimations[0];
 
     leadingCar.addListener(({ value }) => {
-      const carX = interpolateValue(value, raceLine, 'x');
-      const carY = interpolateValue(value, raceLine, 'y');
-
-      backgroundOffset.x.setValue(screenWidth / 2 - carX);
-      backgroundOffset.y.setValue(screenHeight / 2 - carY);
+      const interpolatedPosition = interpolatePosition(value, cumulativeDistances, completeRaceLine);
+      backgroundOffset.x.setValue(screenWidth / 2 - interpolatedPosition.x);
+      backgroundOffset.y.setValue(screenHeight / 2 - interpolatedPosition.y);
     });
   };
 
-  const interpolateValue = (value: number, line: { x: number; y: number }[], axis: 'x' | 'y') => {
-    const startIndex = Math.floor(value);
-    const endIndex = Math.ceil(value);
-    const progress = value - startIndex;
+  const interpolatePosition = (
+    progress: number,
+    distances: number[],
+    line: { x: number; y: number }[]
+  ) => {
+    let startIndex = 0;
+    while (progress > distances[startIndex + 1] && startIndex < distances.length - 2) {
+      startIndex++;
+    }
 
-    const startValue = line[startIndex][axis];
-    const endValue = line[endIndex][axis];
+    const startPoint = line[startIndex];
+    const endPoint = line[startIndex + 1];
+    const segmentProgress =
+      (progress - distances[startIndex]) /
+      (distances[startIndex + 1] - distances[startIndex]);
 
-    return startValue + (endValue - startValue) * progress;
+    return {
+      x: startPoint.x + (endPoint.x - startPoint.x) * segmentProgress,
+      y: startPoint.y + (endPoint.y - startPoint.y) * segmentProgress,
+    };
   };
 
-  const calculateAngle = (current: { x: number; y: number }, next: { x: number; y: number }) => {
-    const dx = next.x - current.x;
-    const dy = next.y - current.y;
-    return Math.atan2(dy, dx) * (180 / Math.PI); // Convert radians to degrees
+  const renderCountdown = () => {
+    if (countdown === null) return null;
+
+    return (
+      <View style={styles.countdownContainer}>
+        <Text style={styles.countdownText}>{countdown}</Text>
+      </View>
+    );
   };
 
   const renderRaceScreen = () => {
@@ -136,7 +262,7 @@ const CarRace: React.FC = () => {
             height: trackHeight,
           }}
         >
-          {raceLine.map((point, index) => (
+          {completeRaceLine.map((point, index) => (
             <View
               key={`dot-${index}`}
               style={[
@@ -150,25 +276,30 @@ const CarRace: React.FC = () => {
           ))}
 
           {carImages.map((carImage, index) => {
+            const carWidth = 50;
+            const carHeight = 50;
+
             const carAnimationX = carAnimations[index]?.interpolate({
-              inputRange: raceLine.map((_, i) => i),
-              outputRange: raceLine.map((point) => point.x - 12.5),
+              inputRange: cumulativeDistances,
+              outputRange: completeRaceLine.map((point) => point.x - carWidth / 2),
             });
 
             const carAnimationY = carAnimations[index]?.interpolate({
-              inputRange: raceLine.map((_, i) => i),
-              outputRange: raceLine.map((point) => point.y - 12.5),
+              inputRange: cumulativeDistances,
+              outputRange: completeRaceLine.map((point) => point.y - carHeight / 2),
             });
 
             const carRotation = carAnimations[index]?.interpolate({
-              inputRange: raceLine.map((_, i) => i),
-              outputRange: raceLine.map((_, i) => {
-                if (i === raceLine.length - 1) return 0; // No rotation at the last point
-                const current = raceLine[i];
-                const next = raceLine[i + 1];
-                return calculateAngle(current, next);
+              inputRange: cumulativeDistances,
+              outputRange: cumulativeDistances.map((_, i) => {
+                if (i === cumulativeDistances.length - 1) return 0; // No rotation at the final point
+                return interpolateRotation(
+                  cumulativeDistances[i],
+                  cumulativeDistances,
+                  completeRaceLine
+                );
               }),
-            });
+            });            
 
             return (
               <Animated.View
@@ -179,12 +310,20 @@ const CarRace: React.FC = () => {
                     transform: [
                       { translateX: carAnimationX || 0 },
                       { translateY: carAnimationY || 0 },
-                      { rotate: carRotation?.interpolate({ inputRange: [0, 360], outputRange: ['0deg', '360deg'] }) || '0deg' },
+                      {
+                        rotate: carRotation?.interpolate({
+                          inputRange: [-180, 180],
+                          outputRange: ['-180deg', '180deg'],
+                        }) || '0deg',
+                      },
                     ],
                   },
                 ]}
               >
-                <Image source={carImage} style={styles.carImage} />
+                <Image
+                  source={carImage}
+                  style={[styles.carImage, { width: carWidth, height: carHeight, transform: [{rotate: '-90deg'}]}]}
+                />
               </Animated.View>
             );
           })}
@@ -196,13 +335,34 @@ const CarRace: React.FC = () => {
   return isRacing ? (
     <View style={styles.container}>
       {renderRaceScreen()}
-      <Button title="Go Back" onPress={() => setIsRacing(false)} />
+      {renderCountdown()}
+      {winner && (
+        <View style={styles.winnerContainer}>
+          <Text style={styles.winnerText}>{winner} vant!</Text>
+        </View>
+      )}
+      <View style={styles.backButtonContainer}>
+        <Button title="Tilbake" onPress={() => setIsRacing(false)} />
+      </View>
     </View>
   ) : (
-    <View style={styles.container}>
-      <Text style={styles.title}>Car Race</Text>
-      <Button title="Start Løp" onPress={() => { setIsRacing(true); startRace(); }} />
-    </View>
+    <ImageBackground
+      source={require('../assets/images/background-car-race.png')}
+      style={[styles.container, { height: screenHeight }]}
+    >
+      <Picker
+        selectedValue={selectedLaps}
+        onValueChange={(itemValue: number) => setSelectedLaps(itemValue)}
+        style={styles.lapPicker}
+      >
+        <Picker.Item label="1 Lap" value={1} />
+        <Picker.Item label="5 Laps" value={5} />
+        <Picker.Item label="10 Laps" value={10} />
+      </Picker>
+      <View style={styles.backButtonContainer}>
+        <Button title="Start Løp" onPress={() => { setIsRacing(true); startCountdown(); setWinner(null); }} />
+      </View>
+    </ImageBackground>
   );
 };
 
@@ -213,12 +373,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#AECD48',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#333',
   },
   trackContainer: {
     position: 'absolute',
@@ -242,6 +396,47 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: 'red',
     zIndex: -1,
+  },
+  countdownContainer: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -50 }, { translateY: -50 }],
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  countdownText: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: 'white',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 20,
+    borderRadius: 10,
+  },
+  backButtonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    width: '80%',
+  },
+  winnerContainer: {
+    position: 'absolute',
+    top: 50,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 10,
+    borderRadius: 5,
+  },
+  winnerText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  lapPicker: {
+    position: 'absolute',
+    top: 50,
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
   },
 });
 
