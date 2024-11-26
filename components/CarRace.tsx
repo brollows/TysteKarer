@@ -77,7 +77,7 @@ const CarRace: React.FC = () => {
     require('../assets/images/car-green.png'),
   ];
 
-  const carNames = ['Rød', 'Blå', 'Ginger', 'Grønn'];
+  const carNames = ['Rød', 'Blå', 'Ginger[Mostue]', 'Grønn'];
 
   useEffect(() => {
     carAnimations.length = 4;
@@ -146,10 +146,10 @@ const CarRace: React.FC = () => {
     while (progress > distances[startIndex + 1] && startIndex < distances.length - 2) {
       startIndex++;
     }
-  
+
     const startPoint = line[startIndex];
     const endPoint = line[startIndex + 1];
-  
+
     // Calculate the current angle
     const dx = endPoint.x - startPoint.x;
     const dy = endPoint.y - startPoint.y;
@@ -160,35 +160,60 @@ const CarRace: React.FC = () => {
       const prevDx = startPoint.x - prevPoint.x;
       const prevDy = startPoint.y - prevPoint.y;
       const prevAngle = Math.atan2(prevDy, prevDx) * (180 / Math.PI);
-  
+
       // Calculate the angular difference directly without constraining
       let deltaAngle = angle - prevAngle;
-  
+
       // Adjust the current angle based on the delta
       angle = prevAngle + deltaAngle;
-      console.log(startIndex + " " + angle)
-
     }
-  
+
     return angle; // Return the unconstrained angle
   };
-  
-  
-  
-  
 
   const startRace = () => {
     resetAnimations();
 
-    carAnimations.forEach((animValue, carIndex) => {
-      const totalDistance = cumulativeDistances[cumulativeDistances.length - 1];
+    const carTotalDurations = [0, 0, 0, 0];
 
-      Animated.timing(animValue, {
-        toValue: totalDistance,
-        duration: totalDistance / carSpeed,
-        easing: Easing.linear,
-        useNativeDriver: false,
-      }).start(({ finished }) => {
+    const animationsBySegment = completeRaceLine.slice(1).map((_, index) => {
+      // Recalculate the leading and trailing cars dynamically at each segment
+      const minDuration = Math.min(...carTotalDurations);
+      const maxDuration = Math.max(...carTotalDurations);
+
+      return carAnimations.map((animValue, carIndex) => {
+        const isTrailingCar = carTotalDurations[carIndex] === minDuration;
+        const isLeadingCar = carTotalDurations[carIndex] === maxDuration;
+
+        let randomSpeedModifier;
+        if (isTrailingCar) {
+          randomSpeedModifier = Math.random() * 0.05; // Random value between 0 and 0.05 for the car with the lowest total duration
+        } else if (isLeadingCar) {
+          randomSpeedModifier = Math.random() * 0.08 - 0.05; // Random value between -0.05 and 0.03 for the leading car
+        } else {
+          randomSpeedModifier = Math.random() * 0.08 - 0.04; // Random value between -0.04 and 0.04 for other cars
+        }
+
+        if (randomSpeedModifier === 0) {
+          randomSpeedModifier = carSpeed + Math.random() * 0.08 - 0.04; // Use default speed if the modifier is 0
+        }
+
+        const distance = cumulativeDistances[index + 1] - cumulativeDistances[index];
+        const duration = distance / (carSpeed + randomSpeedModifier);
+        carTotalDurations[carIndex] += duration;
+
+        return Animated.timing(animValue, {
+          toValue: cumulativeDistances[index + 1],
+          duration,
+          easing: Easing.linear,
+          useNativeDriver: false,
+        });
+      });
+    });
+
+    carAnimations.forEach((_, carIndex) => {
+      const carAnimationsSequence = animationsBySegment.map((segment) => segment[carIndex]);
+      Animated.sequence(carAnimationsSequence).start(({ finished }) => {
         if (finished) {
           setWinner((prevWinner) =>
             prevWinner === null ? carNames[carIndex] : prevWinner
@@ -197,16 +222,25 @@ const CarRace: React.FC = () => {
       });
     });
 
-    followLeadingCar();
+    followLeadingCar(carTotalDurations);
   };
 
-  const followLeadingCar = () => {
-    const leadingCar = carAnimations[0];
+  const followLeadingCar = (carTotalDurations: number[]) => {
+    let leadingCarIndex = carTotalDurations.indexOf(Math.min(...carTotalDurations));
 
-    leadingCar.addListener(({ value }) => {
-      const interpolatedPosition = interpolatePosition(value, cumulativeDistances, completeRaceLine);
-      backgroundOffset.x.setValue(screenWidth / 2 - interpolatedPosition.x);
-      backgroundOffset.y.setValue(screenHeight / 2 - interpolatedPosition.y);
+    carAnimations.forEach((animValue, carIndex) => {
+      animValue.addListener(({ value }) => {
+        const currentLeadingCarIndex = carTotalDurations.indexOf(Math.min(...carTotalDurations));
+        if (currentLeadingCarIndex !== leadingCarIndex) {
+          leadingCarIndex = currentLeadingCarIndex;
+        }
+
+        if (carIndex === leadingCarIndex) {
+          const interpolatedPosition = interpolatePosition(value, cumulativeDistances, completeRaceLine);
+          backgroundOffset.x.setValue(screenWidth / 2 - interpolatedPosition.x);
+          backgroundOffset.y.setValue(screenHeight / 2 - interpolatedPosition.y);
+        }
+      });
     });
   };
 
@@ -299,7 +333,7 @@ const CarRace: React.FC = () => {
                   completeRaceLine
                 );
               }),
-            });            
+            });
 
             return (
               <Animated.View
@@ -396,6 +430,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: 'red',
     zIndex: -1,
+    visibility: 'hidden',
   },
   countdownContainer: {
     position: 'absolute',
@@ -414,6 +449,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
   },
+ 
   backButtonContainer: {
     position: 'absolute',
     bottom: 20,
@@ -441,3 +477,4 @@ const styles = StyleSheet.create({
 });
 
 export default CarRace;
+

@@ -73,6 +73,7 @@ const PlinkoGame: React.FC = () => {
     }
   
     const dropBall = async () => {
+      setSelectedBucket(-1)
       setBallDropping(true);
       const randomFactorValue: number = randomFactor() + 3;
       const randomAngle = Math.random() * 2 - 1;
@@ -232,7 +233,7 @@ const PlinkoGame: React.FC = () => {
               <View key={index} style={{ alignItems: 'center' }}>
                 {/* Display text for the bucket */}
                 <Text style={styles.bucketText}>
-                  {drink === 0 ? '∞' : drink}
+                  {drink === 0 ? '-1' : drink}
                 </Text>
 
                 {/* Animated bucket */}
@@ -262,7 +263,7 @@ const PlinkoGame: React.FC = () => {
                 Drikk {bucketDrinks[selectedBucket]} slurker!
               </Text>
             ) : (
-              <Text style={styles.resultText}>--</Text>
+              <Text style={styles.resultText}>Del ut 1 slurk</Text>
             )}
           </View>
         )}

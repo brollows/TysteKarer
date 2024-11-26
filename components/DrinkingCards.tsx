@@ -44,6 +44,8 @@ export interface DrinkingCard {
     { cardNumber: 35, header: 'Cleen shave', drinkingTask: '{playerName} har for hard hårvekst, noe må barberes vekk! Diskuter hvor det skal barberes! {drinkingAmount}', drinkingAmount: 2 },
     { cardNumber: 36, header: 'Knokelek', drinkingTask: 'Svart på hvitt over hvilke 2-spillere som kjemper om æren til å dele ut {drinkingAmount} slurker', drinkingAmount: 5 },
     { cardNumber: 37, header: 'Veik', drinkingTask: 'Håndbak, {playerName} og personen som sitter 2 plasser til høyere må i duell om {drinkingAmount} slurker', drinkingAmount: 5 },    
+    { cardNumber: 38, header: 'Ja takk begge!', drinkingTask: 'Vil du pule bestemor eller bli pult av bestefaren din. Mindretallet må drikke {drinkingAmount} slurker', drinkingAmount: 2 }, 
+    { cardNumber: 39, header: 'Gris', drinkingTask: 'Sistemann til å ta tommelen på bordet må ta {drinkingAmount} slurker', drinkingAmount: 3 },   
   ];
   
   export const getDrinkingCard = (cardNumber: number): DrinkingCard | undefined => {
